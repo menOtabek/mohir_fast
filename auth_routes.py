@@ -3,6 +3,7 @@ from fastapi import APIRouter, status
 from schemas import SignUp
 from database import session
 from models import User
+from werkzeug.security import generate_password_hash
 
 auth_router = APIRouter(prefix="/auth")
 
@@ -12,7 +13,7 @@ async def sign_in():
     return {"message": "Welcome to Auth API!"}
 
 
-@auth_router.post("/sign-up")
+@auth_router.post("/sign-up", status_code=status.HTTP_201_CREATED)
 async def sign_up(user: SignUp):
     db_email = session.query(User).filter(User.email == user.email).first()
     if db_email:
@@ -27,8 +28,9 @@ async def sign_up(user: SignUp):
 
     new_user = User(email=user.email,
                     username=user.username,
-                    password=user.password,
+                    password=generate_password_hash(user.password),
                     is_active=user.is_active,
                     is_staff=user.is_staff)
     session.add(new_user)
     session.commit()
+    return new_user
