@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, ForeignKey, Text, Table
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Text, Table
 from sqlalchemy.orm import relationship
 from sqlalchemy_utils import ChoiceType
 
@@ -36,7 +36,7 @@ class Order(Base):
     status = Column(ChoiceType(choices=ORDER_STATUS_CHOICES), default=1)
     user_id = Column(Integer, ForeignKey('users.id'))
     user = relationship('User', back_populates='orders')
-    product = relationship('Product', secondary=order_products, back_populates='orders')
+    products = relationship('Product', secondary=order_products, back_populates='orders')
 
     def __repr__(self):
         return '<Order %r>' % self.id
@@ -47,7 +47,7 @@ class Product(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String(50))
     price = Column(Integer)
-    order = relationship('Order', secondary=order_products, back_populates='products')
+    orders = relationship('Order', secondary=order_products, back_populates='products')
 
     def __repr__(self):
         return '<Product %r>' % self.id
