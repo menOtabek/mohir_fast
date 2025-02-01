@@ -1,10 +1,15 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
-class SignUp(BaseModel):
-    id: Optional[int] = None
-    username: str = Field(..., min_length=3, max_length=25, example="John")
-    password: str = Field(..., min_length=6, max_length=25, example="password123")
-    email: str = Field(..., min_length=3, max_length=254, example="John@gmail.com")
-    is_active: Optional[bool] = Field(default=True, example=True)
-    is_staff: Optional[bool] = Field(default=False, example=True)
+class Register(BaseModel):
+    username: str = Field(..., min_length=3, max_length=25, examples=["JohnDoe"])
+    password: str = Field(..., min_length=6, examples=["strong_password"])
+    email: str = Field(..., examples=["johndoe@example.com"])
+    is_active: Optional[bool] = Field(default=True, examples=[True])
+    is_staff: Optional[bool] = Field(default=False, examples=[False])
+
+
+
+class Login(BaseModel):
+    username: str = Field(..., min_length=3, max_length=25, examples=['johndoe'])
+    password: str = Field(..., min_length=6, examples=['strong_password'])
