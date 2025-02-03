@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 import jwt
-from jwt.exceptions import InvalidTokenError
+from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
 
 EXPIRE_ACCESS = 30 * 10
 EXPIRE_REFRESH = 60 * 10
@@ -35,5 +35,6 @@ async def token_decode(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         return payload
-    except InvalidTokenError as e:
+    except Exception as e:
         raise e
+# from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
