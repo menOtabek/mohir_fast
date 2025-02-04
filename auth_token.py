@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import jwt
 from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+from fastapi import HTTPException, status
 
 EXPIRE_ACCESS = 30 * 10
 EXPIRE_REFRESH = 60 * 10
@@ -35,6 +36,9 @@ async def token_decode(token: str) -> dict:
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
         return payload
-    except Exception as e:
-        raise e
-# from jwt.exceptions import InvalidTokenError, ExpiredSignatureError
+    except ExpiredSignatureError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Expired token")
+    except InvalidTokenError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid token")
+    except HTTPException as e:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Error with token decoding: {e}")
