@@ -39,3 +39,16 @@ class OrderStatusSchema(BaseModel):
                 "status": "pending",
             }
         }
+
+
+class ProductSchema(BaseModel):
+    name: str
+    price: float
+    class Config:
+        orm_mode = True
+        schema_extra = {
+            "example": {
+                "name": "Product name",
+                "price": 1.0,
+            }
+        }

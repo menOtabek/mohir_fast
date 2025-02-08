@@ -12,14 +12,6 @@ oauth2 = OAuth2PasswordBearer(tokenUrl="/token")
 session = session(bind=engine)
 
 
-@order_router.get("/", status_code=status.HTTP_200_OK)
-async def get_orders(token: str = Depends(oauth2)):
-    return {
-        'success': True,
-        'message': "User's orders"
-    }
-
-
 @order_router.post("/create", status_code=status.HTTP_201_CREATED)
 async def create_order(order: OrderSchema, token: str = Depends(oauth2)):
     user_data = await token_decode(token)
