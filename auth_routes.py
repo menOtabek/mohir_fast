@@ -9,7 +9,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 
 session = session(bind=engine)
 auth_router = APIRouter(prefix="/auth")
-
 oauth2 = OAuth2PasswordBearer(tokenUrl="/token")
 
 
@@ -90,7 +89,7 @@ async def refresh(token: str = Depends(oauth2)):
     refresh_token = await refresh_token_generate(user_id)
     data = {
         'success': True,
-        'message': 'User successfully refreshed',
+        'message': 'Token successfully refreshed',
         'access_token': access_token,
         'refresh_token': refresh_token
     }

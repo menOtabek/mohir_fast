@@ -1,7 +1,6 @@
 from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, Depends, status
 from fastapi.security import OAuth2PasswordBearer
-from database import session, engine
 from auth_token import token_decode
 from models import User, Product
 from schemas import ProductSchema
