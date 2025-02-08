@@ -5,12 +5,10 @@ from database import session, engine
 from auth_token import token_decode
 from models import User, Product
 from schemas import ProductSchema
-
 from auth_routes import session
 
 product_router = APIRouter(prefix="/product")
 oauth2 = OAuth2PasswordBearer(tokenUrl='/token')
-# session = session(bind=engine)
 
 
 @product_router.post("/create", status_code=status.HTTP_201_CREATED)
@@ -45,4 +43,20 @@ async def list_products():
         'success': True,
         'message': 'Products list',
         'data': products
+    }
+
+
+@product_router.get("/{product_id}", status_code=status.HTTP_200_OK)
+async def product_details(product_id: int):
+    product = session.query(Product).filter_by(id=product_id).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    return {
+        'status': True,
+        'message': 'Product details',
+        'data': {
+            'id': product.id,
+            'name': product.name,
+            'price': product.price
+        }
     }
