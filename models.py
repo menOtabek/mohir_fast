@@ -23,37 +23,26 @@ class User(Base):
         return self.username
 
 
-class Product(Base):
-    __tablename__ = 'products'
-    id = Column(Integer, primary_key=True)
-    name = Column(String(50), nullable=False)
-    price = Column(Integer, nullable=False)
-    order_items = relationship('OrderItem', back_populates='product')  # Relationship to order items
-
-    def __repr__(self):
-        return f'<Product {self.id}>'
-
-
 class Order(Base):
     __tablename__ = 'orders'
     id = Column(Integer, primary_key=True)
-    status = Column(ChoiceType(ORDER_STATUS_CHOICES), default='pending')  # Use ChoiceType for status
-    user_id = Column(Integer, ForeignKey('users.id'))
+    quantity = Column(Integer, nullable=False)
+    status = Column(ChoiceType(ORDER_STATUS_CHOICES, impl=String(11)), default='pending')  # Use ChoiceType for status
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
     user = relationship('User', back_populates='orders')  # Relationship to user
-    order_items = relationship('OrderItem', back_populates='order')  # Relationship to order items
+    product_id = Column(Integer, ForeignKey('products.id'))
+    product = relationship('Product', back_populates='orders')
 
     def __repr__(self):
         return f'<Order {self.id}>'
 
 
-class OrderItem(Base):
-    __tablename__ = 'order_items'
+class Product(Base):
+    __tablename__ = 'products'
     id = Column(Integer, primary_key=True)
-    quantity = Column(Integer, nullable=False)
-    product_id = Column(Integer, ForeignKey('products.id'), nullable=False)
-    product = relationship('Product', back_populates='order_items')  # Relationship to product
-    order_id = Column(Integer, ForeignKey('orders.id'), nullable=False)
-    order = relationship('Order', back_populates='order_items')  # Relationship to order
+    name = Column(String(50), nullable=False)
+    price = Column(Integer, nullable=False)
+    orders = relationship("Order", back_populates="product")
 
     def __repr__(self):
-        return f'{self.quantity} x {self.product.name if self.product else "Unknown Product"}'
+        return f'<Product {self.id}>'
