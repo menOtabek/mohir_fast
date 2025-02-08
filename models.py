@@ -9,6 +9,7 @@ ORDER_STATUS_CHOICES = [
     ('delivered', 'Delivered'),
 ]
 
+
 class User(Base):
     __tablename__ = 'users'
     id = Column(Integer, primary_key=True)
