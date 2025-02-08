@@ -21,8 +21,8 @@ class OrderSchema(BaseModel):
     # product_id: Optional[int]
 
     class Config:
-        orm_mode = True
-        schema_extra = {
+        from_attributes = True
+        json_schema_extra = {
             "example": {
                 "quantity": 1,
                 # "product_id": 1
@@ -33,8 +33,8 @@ class OrderSchema(BaseModel):
 class OrderStatusSchema(BaseModel):
     status: Optional[str]
     class Config:
-        orm_mode = True
-        schema_extra = {
+        from_attributes = True
+        json_schema_extra = {
             "example": {
                 "status": "pending",
             }
@@ -45,8 +45,8 @@ class ProductSchema(BaseModel):
     name: str
     price: float
     class Config:
-        orm_mode = True
-        schema_extra = {
+        from_attributes = True
+        json_schema_extra = {
             "example": {
                 "name": "Product name",
                 "price": 1.0,
