@@ -4,7 +4,7 @@ from models import Order, User, Product
 from database import session, engine
 from fastapi.security import OAuth2PasswordBearer
 from auth_token import token_decode
-from schemas import OrderSchema, OrderUpdateSchema
+from schemas import OrderSchema, OrderUpdateSchema, OrderStatusSchema
 
 order_router = APIRouter(prefix="/order")
 oauth2 = OAuth2PasswordBearer(tokenUrl="/token")
@@ -87,8 +87,8 @@ async def get_order(order_id: int, token: str = Depends(oauth2)):
 
 @order_router.patch("/{order_id}/update", status_code=status.HTTP_200_OK)
 async def update_order(order_id: int, order_update: OrderUpdateSchema, token: str = Depends(oauth2)):
-    order_data = await token_decode(token)
-    user_id = order_data.get('sub')
+    user_data = await token_decode(token)
+    user_id = user_data.get('sub')
     user = session.query(User).filter(User.id == user_id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
@@ -104,6 +104,36 @@ async def update_order(order_id: int, order_update: OrderUpdateSchema, token: st
     return {
         'success': True,
         'message': "Order updated",
+        'data': {
+            'id': exist_order.id,
+            'quantity': exist_order.quantity,
+            'user_id': exist_order.user.id,
+            'status': exist_order.status,
+            'product': {
+                'id': exist_order.product.id,
+                'name': exist_order.product.name,
+                'price': exist_order.product.price,
+            }
+        }
+    }
+
+
+@order_router.patch("/{order_id}/status-update", status_code=status.HTTP_200_OK)
+async def update_order_status(order_id: int, order_status: OrderStatusSchema, token: str = Depends(oauth2)):
+    user_data = await token_decode(token)
+    user_id = user_data.get('sub')
+    user = session.query(User).filter(User.id == user_id).first()
+    if not user or user.is_staff != True:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found or not staff")
+    exist_order = session.query(Order).filter(Order.id == order_id, Order.user_id == user.id, ).first()
+    if not exist_order:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Order not found")
+    exist_order.status = order_status.status
+    session.commit()
+    session.refresh(exist_order)
+    return {
+        'success': True,
+        'message': "Order status updated",
         'data': {
             'id': exist_order.id,
             'quantity': exist_order.quantity,

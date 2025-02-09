@@ -13,8 +13,8 @@ oauth2 = OAuth2PasswordBearer(tokenUrl="/token")
 
 
 @auth_router.get("/me")
-async def auth(token: str = Depends(oauth2)):
-    payload = await token_decode(token)
+async def auth(user_token: str = Depends(oauth2)):
+    payload = await token_decode(user_token)
     user_id = payload.get("sub")
     user = session.query(User).filter(User.id == user_id).first()
     if not user:
@@ -79,8 +79,8 @@ async def login(user: Login):
 
 
 @auth_router.get("/refresh", status_code=status.HTTP_200_OK)
-async def refresh(token: str = Depends(oauth2)):
-    payload = await token_decode(token)
+async def refresh(user_token: str = Depends(oauth2)):
+    payload = await token_decode(user_token)
     user_id = payload.get("sub")
     user = session.query(User).filter(User.id == user_id).first()
     if not user:
@@ -94,3 +94,25 @@ async def refresh(token: str = Depends(oauth2)):
         'refresh_token': refresh_token
     }
     return data
+
+
+@auth_router.patch("/update-role", status_code=status.HTTP_200_OK)
+async def token(user_token: str = Depends(oauth2)):
+    user_data = await token_decode(user_token)
+    user_id = user_data.get("sub")
+    user = session.query(User).filter(User.id == user_id).first()
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User not found')
+    user.is_staff = True
+    session.commit()
+    return {
+        "success": True,
+        "message": "User role updated",
+        "data": {
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+            "is_active": user.is_active,
+            "is_staff": user.is_staff
+        }
+    }
