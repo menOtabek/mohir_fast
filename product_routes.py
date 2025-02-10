@@ -59,3 +59,21 @@ async def product_details(product_id: int):
             'price': product.price
         }
     }
+
+
+@product_router.delete("/{product_id}/delete", status_code=status.HTTP_200_OK)
+async def delete_product(product_id: int, token: str = Depends(oauth2)):
+    user_data = await token_decode(token)
+    user_id = user_data.get('sub')
+    user = session.query(User).filter_by(id=user_id).first()
+    if not user or user.is_staff is False:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found or method not permitted")
+    product = session.query(Product).filter_by(id=product_id).first()
+    if not product:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Product not found")
+    session.delete(product)
+    session.commit()
+    return {
+        'status': True,
+        'message': 'Product deleted',
+    }
